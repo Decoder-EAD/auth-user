@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: auth-user
+
+server:
+  compression:
+    enabled: true
+  port: 8180
+  servlet:
+    context-path: /auth-user
+  forward-headers-strategy: framework
