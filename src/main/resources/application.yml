@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: auth-user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/authuser
+    username: postgres
+    password: mysecretpassword
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      jdbc:
+        lob.non-contextual-creation: true
+    properties:
+      hibernate:
+        show_sql: true
+
+server:
+  compression:
+    enabled: true
+  port: 8180
+  servlet:
+    context-path: /auth-user
+  forward-headers-strategy: framework
