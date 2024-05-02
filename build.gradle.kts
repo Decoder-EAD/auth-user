@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-log4j2")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-hateoas")
@@ -30,6 +31,12 @@ dependencies {
 	implementation("net.kaczmarzyk:specification-arg-resolver:3.1.0")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+configurations {
+	all {
+		exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+	}
 }
 
 tasks.withType<KotlinCompile> {

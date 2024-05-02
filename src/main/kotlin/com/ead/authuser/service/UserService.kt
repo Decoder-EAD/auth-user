@@ -4,13 +4,14 @@ import com.ead.authuser.models.UserModel
 import com.ead.authuser.specifications.SpecificationTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import java.util.*
 
 interface UserService {
 
     fun getUsers(): List<UserModel>
 
-    fun getUsers(pageable: Pageable, spec : SpecificationTemplate.UserSpec): Page<UserModel>
+    fun getUsers(pageable: Pageable, spec : Specification<UserModel>?): Page<UserModel>
 
     fun getUserById(userId: UUID): UserModel?
 

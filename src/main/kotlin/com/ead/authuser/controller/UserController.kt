@@ -5,6 +5,7 @@ import com.ead.authuser.dto.UserView
 import com.ead.authuser.models.UserModel
 import com.ead.authuser.service.UserService
 import com.ead.authuser.specifications.SpecificationTemplate
+import com.ead.authuser.specifications.userCourseId
 import com.fasterxml.jackson.annotation.JsonView
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -30,11 +31,17 @@ class UserController(
 
     @GetMapping
     fun getUserList(
-        spec: SpecificationTemplate.UserSpec,
-        @PageableDefault(page = 0, size = 10, sort = ["userId"], direction = Sort.Direction.ASC) page: Pageable
+        spec: SpecificationTemplate.UserSpec?,
+        @PageableDefault(page = 0, size = 10, sort = ["userId"], direction = Sort.Direction.ASC) page: Pageable,
+        @RequestParam(required = false) courseId: UUID?
     ): ResponseEntity<Page<UserModel>> {
 
-        val userPage = userService.getUsers(page, spec)
+        val userPage = if (courseId != null) {
+            userService.getUsers(page, userCourseId(courseId).and(spec))
+        } else {
+            userService.getUsers(page, spec)
+        }
+
         if (!userPage.isEmpty) {
             userPage.content.forEach {
                 it.add(linkTo(methodOn(UserController::class.java).getUserById(it.userId!!)).withSelfRel())
@@ -60,11 +67,11 @@ class UserController(
     fun deleteUserById(@PathVariable userId: UUID): ResponseEntity<Any> {
         val user = userService.getUserById(userId)
 
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.")
+        return if (user == null) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.")
         } else {
             userService.deleteUserByID(userId)
-            return ResponseEntity.ok(user)
+            ResponseEntity.ok(user)
         }
     }
 

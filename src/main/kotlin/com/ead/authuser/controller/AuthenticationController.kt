@@ -1,10 +1,12 @@
 package com.ead.authuser.controller
 
+import com.ead.authuser.config.Log
 import com.ead.authuser.dto.UserDto
 import com.ead.authuser.dto.UserView
 import com.ead.authuser.models.UserModel
 import com.ead.authuser.service.UserService
 import com.fasterxml.jackson.annotation.JsonView
+import org.apache.logging.log4j.LogManager
 import org.springframework.beans.BeanUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,11 +23,13 @@ class AuthenticationController(
     private val userService: UserService
 ) {
 
+    companion object : Log()
+
     @PostMapping(path = ["/signup"])
     fun registerUser(
         @RequestBody @Validated(UserView.RegistrationPost::class) @JsonView(UserView.RegistrationPost::class) requestBody: UserDto
     ): ResponseEntity<Any> {
-
+        log.info("Request received: $requestBody")
         if (userService.existsByUserName(requestBody.userName)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already taken!")
         }

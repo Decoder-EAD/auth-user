@@ -5,6 +5,7 @@ import com.ead.authuser.enums.UserType
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
 import org.springframework.hateoas.RepresentationModel
 import java.time.LocalDateTime
@@ -51,11 +52,19 @@ data class UserModel(
     var imageUrl: String? = null,
 
     @Column(nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     var creationDate: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),
 
     @Column(nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     var updateDate: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),
 
-    ) : RepresentationModel<UserModel>() {}
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    var userCourses: Set<UserCourseModel> = emptySet()
+
+) : RepresentationModel<UserModel>() {
+
+    fun convertToUserCourseModel(courseId: UUID): UserCourseModel = UserCourseModel(null, this, courseId)
+
+}
