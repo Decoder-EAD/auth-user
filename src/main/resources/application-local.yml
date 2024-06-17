@@ -1,0 +1,30 @@
+logging:
+  level:
+    com.ead: TRACE
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate: INFO
+
+server:
+  port: 8180
+spring:
+  output:
+    ansi:
+      enabled: always
+
+ead:
+  database:
+    url: jdbc:postgresql://localhost:5432/authuser
+    username: postgres
+    password: mysecretpassword
+  broker:
+    connection:
+      address: amqps://vsofjkut:WWJY_EeQVli0IQadxcv_YwBOqQcSsxv9@stingray.rmq.cloudamqp.com/vsofjkut
+    exchange:
+      user-event: ead.user.event
+  api:
+    course:
+      url: "http://ead-course-service/courses"
+  auth:
+    jwtSecret: GnVFK00zymlk6turevHkYqo4/T61pv-bF=/OR!cZbfhtFVv1ri6jIPVzEmm-CQt0NCvicDU!raV=hQTVKB?jGvK2Lr6zEK7Gvd6OoCoWNGxkPkNkm7mmwEpBP13gkGLCtzV1yK7Uscsw0KxNxQobKYiEHa?jCdgxKxCKbDwka9DnDQ-t8t9mVR7Fr==M4=PjnD51MZlCEYXPsrDSBv0woHof-aaNJd0YC0nHdSKVTiVOaP4AHG1jCpX?ejR2ClnYWiYH2CV8rzAelBvFguax8c1aLbNmi8vKxE6!W4jshW7X3HvJ4m!!n36qB0zyoakVp7XsvW8DW1NKU7uX/z/kLqoJuHyiyTC!HNxc-Zla?=4Ny8BSOLMGxu/gW/RZWbI8=8gz0!4V9lDuTsQLuH-zcq9dDcvGikxJo8vmkD5cETJbQGS6?h8iwr6E?Jb5YRysKShXlnKtQ89MPbPM!tLpWw1eA?xUT-1sTIXv75o90ODbtEt=BlOcxn9fuZ0V3px3
+    jwtExpiration: 14400000

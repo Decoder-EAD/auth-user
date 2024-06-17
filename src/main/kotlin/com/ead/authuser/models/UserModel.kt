@@ -10,7 +10,8 @@ import jakarta.persistence.*
 import org.springframework.hateoas.RepresentationModel
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.UUID
+import java.util.*
+import kotlin.collections.HashSet
 
 @Entity
 @Table(name = "TB_USERS")
@@ -18,8 +19,7 @@ import java.util.UUID
 data class UserModel(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    var userId: UUID? = null,
+    val userId: UUID = UUID.randomUUID(),
 
     @Column(nullable = false, unique = true, length = 50)
     var userName: String = "",
@@ -60,11 +60,12 @@ data class UserModel(
     var updateDate: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    var userCourses: Set<UserCourseModel> = emptySet()
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "TB_USERS_ROLES",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "role_id")]
+    )
+    var roles: MutableSet<RoleModel> = mutableSetOf()
 
-) : RepresentationModel<UserModel>() {
-
-    fun convertToUserCourseModel(courseId: UUID): UserCourseModel = UserCourseModel(null, this, courseId)
-
-}
+) : RepresentationModel<UserModel>()

@@ -1,7 +1,6 @@
 package com.ead.authuser.service
 
 import com.ead.authuser.models.UserModel
-import com.ead.authuser.specifications.SpecificationTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
@@ -15,12 +14,16 @@ interface UserService {
 
     fun getUserById(userId: UUID): UserModel?
 
-    fun deleteUserByID(userid: UUID)
-
-    fun save(userModel: UserModel): UserModel
-
     fun existsByUserName(userName: String): Boolean
 
     fun existsByEmail(email: String): Boolean
+
+    fun create(userModel: UserModel): UserModel
+
+    fun delete(userModel: UserModel)
+
+    fun update(userModel: UserModel): UserModel
+
+    fun updatePassword(userModel: UserModel): UserModel
 
 }

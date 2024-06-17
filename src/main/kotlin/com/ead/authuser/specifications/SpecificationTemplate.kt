@@ -1,6 +1,5 @@
 package com.ead.authuser.specifications
 
-import com.ead.authuser.models.UserCourseModel
 import com.ead.authuser.models.UserModel
 import jakarta.persistence.criteria.Join
 import net.kaczmarzyk.spring.data.jpa.domain.Equal
@@ -20,12 +19,4 @@ class SpecificationTemplate {
     )
     interface UserSpec : Specification<UserModel> {}
 
-}
-
-fun userCourseId(id: UUID): Specification<UserModel> {
-    return Specification { root, query, criteriaBuilder ->
-        query.distinct(true)
-        val userProd: Join<UserModel, UserCourseModel> = root.join("userCourses")
-        criteriaBuilder.equal(userProd.get<UUID>("courseId"), id)
-    }
 }

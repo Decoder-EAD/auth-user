@@ -3,19 +3,21 @@ package com.ead.authuser.controller
 import com.ead.authuser.dto.UserDto
 import com.ead.authuser.dto.UserView
 import com.ead.authuser.models.UserModel
+import com.ead.authuser.security.AuthenticationService
 import com.ead.authuser.service.UserService
 import com.ead.authuser.specifications.SpecificationTemplate
-import com.ead.authuser.specifications.userCourseId
 import com.fasterxml.jackson.annotation.JsonView
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
@@ -26,21 +28,18 @@ import java.util.*
 @RequestMapping(path = ["/users"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @CrossOrigin(origins = ["*"], maxAge = 3600)
 class UserController(
-    private val userService: UserService
+    private val userService: UserService,
+    private val authenticationService: AuthenticationService
 ) {
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     fun getUserList(
         spec: SpecificationTemplate.UserSpec?,
-        @PageableDefault(page = 0, size = 10, sort = ["userId"], direction = Sort.Direction.ASC) page: Pageable,
-        @RequestParam(required = false) courseId: UUID?
+        @PageableDefault(page = 0, size = 10, sort = ["userId"], direction = Sort.Direction.ASC) page: Pageable
     ): ResponseEntity<Page<UserModel>> {
 
-        val userPage = if (courseId != null) {
-            userService.getUsers(page, userCourseId(courseId).and(spec))
-        } else {
-            userService.getUsers(page, spec)
-        }
+        val userPage = userService.getUsers(page, spec)
 
         if (!userPage.isEmpty) {
             userPage.content.forEach {
@@ -48,12 +47,18 @@ class UserController(
             }
         }
 
-
         return ResponseEntity.ok(userPage)
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/{userId}")
-    fun getUserById(@PathVariable userId: UUID): ResponseEntity<Any> {
+    fun getUserById(
+        @PathVariable userId: UUID
+        ): ResponseEntity<Any> {
+        if (authenticationService.getCurrentUser().userId != userId) {
+            throw AccessDeniedException("Forbidden")
+        }
+
         val user = userService.getUserById(userId)
 
         return if (user != null) {
@@ -70,7 +75,7 @@ class UserController(
         return if (user == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.")
         } else {
-            userService.deleteUserByID(userId)
+            userService.delete(user)
             ResponseEntity.ok(user)
         }
     }
@@ -90,7 +95,7 @@ class UserController(
             user.cpf = requestBody.cpf
             user.updateDate = LocalDateTime.now(ZoneId.of("UTC"))
 
-            userService.save(user)
+            userService.update(user)
 
             return ResponseEntity.ok(user)
         }
@@ -114,7 +119,7 @@ class UserController(
             user.password = requestBody.password
             user.updateDate = LocalDateTime.now(ZoneId.of("UTC"))
 
-            userService.save(user)
+            userService.updatePassword(user)
 
             return ResponseEntity.ok("Password successfully updated!")
         }
@@ -133,7 +138,7 @@ class UserController(
             user.imageUrl = requestBody.imageUrl
             user.updateDate = LocalDateTime.now(ZoneId.of("UTC"))
 
-            userService.save(user)
+            userService.update(user)
 
             return ResponseEntity.ok(user)
         }
